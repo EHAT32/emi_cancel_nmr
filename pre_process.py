@@ -12,6 +12,7 @@ def apply_decimation(array):
     return result
 
 path = "C:/Users/roman/YandexDisk/with_amplifier/"
+save_path = "E:/nmr/emi_cancel_nmr_dataset/"
 
 dt = 20e-9 #time sample is 20 ns
 fs = 1 / dt #sampling frequency
@@ -84,3 +85,6 @@ for folder in folders:
             data[1, 1, :] = torch.from_numpy(ch2_imag[i].copy())
             data[0, 2, :] = torch.from_numpy(target_real[i].copy())
             data[1, 2, :] = torch.from_numpy(target_imag[i].copy())
+
+            torch.save(data, save_path + str(item_idx) + ".pt")
+            item_idx += 1
