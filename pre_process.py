@@ -37,3 +37,10 @@ for folder in folders:
         target = np.vstack(np.split(target, n))
         #stack into (488, 51200, 3)
         data = np.dstack((ch1, ch2, target))
+        plt.plot(data[0, :, 2])
+        plt.show(block=False)
+        plt.clf()
+        #apply bp filter
+        data = sosfilt(filter, data, axis=1)
+        plt.plot(data[0, :, 2])
+        plt.show(block=False)
