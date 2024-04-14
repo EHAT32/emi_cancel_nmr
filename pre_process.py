@@ -3,8 +3,15 @@ import pandas as pd
 import os
 from scipy.signal import decimate, butter, sosfilt
 import matplotlib.pyplot as plt
+import torch
 
-path = "C:/flashka_back/data/with_amplifier/"
+def apply_decimation(array):
+    result = decimate(array, 10, axis=1)
+    result = decimate(result, 10, axis=1)
+    result = decimate(result, 4, axis=1)
+    return result
+
+path = "C:/Users/roman/YandexDisk/with_amplifier/"
 
 dt = 20e-9 #time sample is 20 ns
 fs = 1 / dt #sampling frequency
@@ -19,9 +26,9 @@ lower_freq = center_freq - 0.1e6
 higher_freq = center_freq + 0.1e6
 filter = butter(4, [lower_freq, higher_freq], 'bp', fs=fs, output='sos')
 #params for demodulation
-time = np.arange(0, cutoff * dt, dt)
-real_part = np.sin(2 * np.pi * time)
-imaginary_part = np.cos(2 * np.pi * time)
+time = np.arange(0, points_num * dt, dt)
+real_part = np.sin(2 * np.pi * center_freq * time)
+imaginary_part = np.cos(2 * np.pi * center_freq * time)
 #params for lowpass filtering
 low_freq = 600e3 #Hz
 low_pass_filter = butter(4, low_freq, 'lowpass', fs=fs, output='sos')
@@ -39,10 +46,14 @@ for folder in folders:
         ch1 = ch1[:cutoff]
         ch2 = ch2[:cutoff]
         target = target[:cutoff]
+        #split into n mini samples 
+        ch1 = np.vstack(np.split(ch1, n))
+        ch2 = np.vstack(np.split(ch2, n))
+        target = np.vstack(np.split(target, n)) #shape is 2 x 128 x 488
         #apply bp filter
-        filtered = sosfilt(filter, ch1)
-        ch2 = sosfilt(filter, ch2)
-        target = sosfilt(filter, target)
+        ch1 = sosfilt(filter, ch1, axis=1)
+        ch2 = sosfilt(filter, ch2, axis=1)
+        target = sosfilt(filter, target, axis=1)
         #demodulate
         ch1_real = ch1 * real_part
         ch1_imag = ch1 * imaginary_part
@@ -50,25 +61,26 @@ for folder in folders:
         ch2_imag = ch2 * imaginary_part
         target_real = target * real_part
         target_imag = target * imaginary_part
-        #combine real and imag into (2, cutoff)
-        ch1 = np.vstack((ch1_real, ch1_imag))
-        ch2 = np.vstack((ch2_real, ch2_imag))
-        target = np.vstack((target_real, target_imag))
         #apply low pass filter
-        ch1 = sosfilt(low_pass_filter, ch1, axis=1)
-        ch2 = sosfilt(low_pass_filter, ch2, axis=1)
-        target = sosfilt(low_pass_filter, target, axis=1)
+        ch1_real = sosfilt(low_pass_filter, ch1_real, axis=1)
+        ch1_imag = sosfilt(low_pass_filter, ch1_imag, axis=1)
+        ch2_real = sosfilt(low_pass_filter, ch2_real, axis=1)
+        ch2_imag = sosfilt(low_pass_filter, ch2_imag, axis=1)
+        target_real = sosfilt(low_pass_filter, target_real, axis=1)
+        target_imag = sosfilt(low_pass_filter, target_imag, axis=1)
         #decimate in three steps : 10, 10 and 4; cutoff -> 128 * 488
-        ch1 = decimate(ch1, 10)
-        ch1 = decimate(ch1, 10)
-        ch1 = decimate(ch1, 4)
-        ch2 = decimate(ch2, 10)
-        ch2 = decimate(ch2, 10)
-        ch2 = decimate(ch2, 4)
-        target = decimate(target, 10)
-        target = decimate(target, 10)
-        target = decimate(target, 4)
-        #split into mini samples with length of 128
-        ch1 = np.dstack(np.split(ch1, n, axis=1))
-        ch2 = np.dstack(np.split(ch2, n, axis=1))
-        target = np.dstack(np.split(target, n, axis=1))
+        ch1_real = apply_decimation(ch1_real)
+        ch1_imag = apply_decimation(ch1_imag)
+        ch2_real = apply_decimation(ch2_real)
+        ch2_imag = apply_decimation(ch2_imag)
+        target_real = apply_decimation(target_real)
+        target_imag = apply_decimation(target_imag)
+        #save as .pth tensor in shape 2 x 3 x 128, where first is real/imag, second is ch1/ch2/target and third is signal num
+        for i in range(ch1_real.shape[0]):
+            data = torch.zeros((2, 3, 128))
+            data[0, 0, :] = torch.from_numpy(ch1_real[i].copy())
+            data[1, 0, :] = torch.from_numpy(ch1_imag[i].copy())
+            data[0, 1, :] = torch.from_numpy(ch2_real[i].copy())
+            data[1, 1, :] = torch.from_numpy(ch2_imag[i].copy())
+            data[0, 2, :] = torch.from_numpy(target_real[i].copy())
+            data[1, 2, :] = torch.from_numpy(target_imag[i].copy())
