@@ -88,3 +88,6 @@ for folder in folders:
 
             torch.save(data, save_path + str(item_idx) + ".pt")
             item_idx += 1
+
+            if item_idx % 100 == 0:
+                print('Finished ', item_idx)
