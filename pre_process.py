@@ -38,7 +38,9 @@ item_idx = 0
 
 for folder in folders:
     files = os.listdir(path + folder)
+    print('Folder', folder)
     for item in files:
+        print('File', item)
         df = pd.read_csv(path + folder + '/' + item)
         ch1 = df['CH1V'].to_numpy()
         ch2 = df['CH2V'].to_numpy()
