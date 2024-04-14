@@ -58,4 +58,13 @@ for folder in folders:
         ch1 = sosfilt(low_pass_filter, ch1, axis=1)
         ch2 = sosfilt(low_pass_filter, ch2, axis=1)
         target = sosfilt(low_pass_filter, target, axis=1)
-        
+        #decimate in three steps : 10, 10 and 4; cutoff -> 128 * 488
+        ch1 = decimate(ch1, 10)
+        ch1 = decimate(ch1, 10)
+        ch1 = decimate(ch1, 4)
+        ch2 = decimate(ch2, 10)
+        ch2 = decimate(ch2, 10)
+        ch2 = decimate(ch2, 4)
+        target = decimate(target, 10)
+        target = decimate(target, 10)
+        target = decimate(target, 4)
