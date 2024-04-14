@@ -68,3 +68,7 @@ for folder in folders:
         target = decimate(target, 10)
         target = decimate(target, 10)
         target = decimate(target, 4)
+        #split into mini samples with length of 128
+        ch1 = np.dstack(np.split(ch1, n, axis=1))
+        ch2 = np.dstack(np.split(ch2, n, axis=1))
+        target = np.dstack(np.split(target, n, axis=1))
