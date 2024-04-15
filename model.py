@@ -3,7 +3,7 @@ import torch.nn as nn
 
 class Model(nn.Module):
     def __init__(self):
-        super(Model, self).__init_()
+        super(Model, self).__init__()
         self.main = nn.Sequential(
             nn.Conv2d(2, 256, 13, stride=1, padding='same'),
             nn.BatchNorm2d(256),
@@ -20,9 +20,10 @@ class Model(nn.Module):
             nn.Conv2d(32, 16, 5, stride=1, padding='same'),
             nn.BatchNorm2d(16),
             nn.LeakyReLU(),
-            nn.Conv2d(16, 2, 3, stride=1, padding=(0, 1))
+            nn.Conv2d(16, 2, (2, 3), stride=1, padding=(0, 1))
         )
 
     def forward(self, x):
         output = self.main(x)
+        output = output.squeeze()
         return output
