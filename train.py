@@ -64,8 +64,7 @@ def main():
                 val_loss = criterion(val_pred, val_target)
                 writer.add_scalar('Loss/validating', val_loss.item(), epoch * len(train_loader) + i)
             
-        torch.save(model.generator.state_dict(), f'./models_save/final_on_full_set/generator-{epoch + 1}.pth')
-        torch.save(model.discriminator.state_dict(), f'./models_save/final_on_full_set/discriminator-{epoch + 1}.pth')
+        torch.save(model.state_dict(), f'./models_save/first/model-{epoch + 1}.pth')
          
     writer.close()
     # Save your trained model
