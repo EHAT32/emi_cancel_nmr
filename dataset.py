@@ -2,7 +2,7 @@ import torch
 from torch.utils.data import Dataset
 import os
 
-class SkinDataset(Dataset):
+class Dataset(Dataset):
     def __init__(self, root, device):
         self.root = root
         if self.root[-1] != '/':
