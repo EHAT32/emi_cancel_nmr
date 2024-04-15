@@ -4,7 +4,7 @@ import torch.nn as nn
 class Model(nn.Module):
     def __init__(self):
         super(Model, self).__init_()
-        nn.Sequential(
+        self.main = nn.Sequential(
             nn.Conv2d(2, 256, 13, stride=1, padding='same'),
             nn.BatchNorm2d(256),
             nn.LeakyReLU(),
@@ -23,5 +23,6 @@ class Model(nn.Module):
             nn.Conv2d(16, 2, 3, stride=1, padding=(0, 1))
         )
 
-    def forward(x):
-        ...
+    def forward(self, x):
+        output = self.main(x)
+        return output
