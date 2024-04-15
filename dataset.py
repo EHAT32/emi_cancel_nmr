@@ -15,3 +15,6 @@ class Dataset(Dataset):
         features = data[:, :2, :]
         target = data[:, 2, :]
         return features, target
+    
+    def __len__(self):
+        return len(self.data)
