@@ -45,7 +45,7 @@ def main():
             loss = criterion(pred, target)
             loss.backward()
             optimizer.step()
-            writer.add_scalar('Loss/training', loss.item(), epoch * len(train_loader) + i)
+            writer.add_scalar(f'Loss/training', loss.item(), epoch * len(train_loader) + i)
             # Print training progress
             # if i % 100 == 0 and i > 0:
             #     print(f'Epoch [{epoch}/{num_epochs}], Step [{i}/{len(train_loader)}], '
@@ -62,8 +62,8 @@ def main():
                 val_features, val_target = next(data_iter)
                 val_pred = model(val_features)
                 val_loss = criterion(val_pred, val_target)
-                writer.add_scalar('Loss/validating', val_loss.item(), epoch * len(train_loader) + i)
-            
+                writer.add_scalar(f'Loss/validating', val_loss.item(), epoch * len(train_loader) + i)
+          
         torch.save(model.state_dict(), f'./models_save/first/model-{epoch + 1}.pth')
          
     writer.close()
