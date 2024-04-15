@@ -4,9 +4,6 @@ from argparse import ArgumentParser
 import torch.nn as nn
 import torch.optim as optim
 from torch.utils.tensorboard import SummaryWriter
-import torchvision.transforms.v2 as transforms
-import torchvision.datasets as dset
-import cv2
 import numpy as np
 from tqdm import tqdm
 import os
@@ -55,35 +52,17 @@ def main():
             #         f'Generator Loss: {gen_loss.item():.4f}, Discriminator Loss: {disc_loss.item():.4f}')
                 
             # Validation
-            # if i % 100 == 0 and i > 0:
-            #     model.eval()
-            #     # Perform validation on a separate validation dataset or a subset of training data
-            #     # Calculate validation metrics and monitor model performance
-            #     print('------------------------------')
-            #     print('Validation:')
-            #     data_iter = iter(validation_loader)
-            #     random_batch = next(data_iter).to(device)
-            #     val_disc = model.training_step(random_batch, optimizer_idx=1)
-            #     val_gen = model.training_step(random_batch, optimizer_idx=0)
-            #     print(f'Generator validation loss: {val_gen.item():.4f}, Discriminator validation loss: {val_disc.item():.4f}')
-            
-            if i % 10 == 0:
+            if i % 100 == 0 and i > 0:
                 model.eval()
-                
-                rand_noise = torch.randn(4, 100, device=device)
-                pred = model.generator(rand_noise).detach()
-                # pred = postprocess(pred)
-                pred = torch.permute(pred, (0, 2, 3, 1)).cpu().numpy()
-                row1 = pred[0]
-                # row2=pred[5]
-                for i in range(3):
-                    row1 = np.concatenate((row1, pred[i + 1]), axis=1)
-                    # row2 = np.concatenate((row2, pred[i + 6]), axis=1)
-                # grid = np.concatenate((row1, row2))
-                grid = cv2.cvtColor(row1, cv2.COLOR_RGBA2BGR)
-                image = cv2.resize(grid, None, fx = 4, fy = 4)
-                cv2.imshow(f'v1', image)
-                cv2.waitKey(1)
+                # Perform validation on a separate validation dataset or a subset of training data
+                # Calculate validation metrics and monitor model performance
+                print('------------------------------')
+                print('Validation:')
+                data_iter = iter(validation_loader)
+                random_batch = next(data_iter)
+                val_disc = model.training_step(random_batch, optimizer_idx=1)
+                val_gen = model.training_step(random_batch, optimizer_idx=0)
+                print(f'Generator validation loss: {val_gen.item():.4f}, Discriminator validation loss: {val_disc.item():.4f}')
             
             # if epoch > 0: #pretraining dicriminator
             opt_idx += 1
