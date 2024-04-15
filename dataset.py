@@ -11,7 +11,7 @@ class Dataset(Dataset):
         self.device = device
         
     def __getitem__(self, index):
-        data = torch.load(self.root + str(index) + '.pt')
+        data = torch.load(self.root + str(index) + '.pt', map_location=torch.device(self.device))
         features = data[:, :2, :]
         target = data[:, 2, :]
         return features, target
