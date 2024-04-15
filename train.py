@@ -59,14 +59,11 @@ def main():
                 print('------------------------------')
                 print('Validation:')
                 data_iter = iter(validation_loader)
-                random_batch = next(data_iter)
-                val_disc = model.training_step(random_batch, optimizer_idx=1)
-                val_gen = model.training_step(random_batch, optimizer_idx=0)
-                print(f'Generator validation loss: {val_gen.item():.4f}, Discriminator validation loss: {val_disc.item():.4f}')
+                val_features, val_target = next(data_iter)
+                val_pred = model(val_features)
+                val_loss = criterion(val_pred, val_target)
+                writer.add_scalar('Validating Loss', val_loss.item(), epoch * len(train_loader) + i)
             
-            # if epoch > 0: #pretraining dicriminator
-            opt_idx += 1
-            opt_idx = opt_idx % 2
         torch.save(model.generator.state_dict(), f'./models_save/final_on_full_set/generator-{epoch + 1}.pth')
         torch.save(model.discriminator.state_dict(), f'./models_save/final_on_full_set/discriminator-{epoch + 1}.pth')
          
