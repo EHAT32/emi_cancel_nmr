@@ -84,6 +84,8 @@ def main():
     
     validation_idx = int(len(train_loader) / 4)
     
+    step_size = 8
+    scheduler = torch.optim.lr_scheduler.StepLR(optimizer, step_size=step_size, gamma=0.9)
     for epoch in range(num_epochs):
         print(f'Epoch {epoch + 1}')
         for i, training_pair in enumerate(tqdm(train_loader)):
@@ -119,7 +121,7 @@ def main():
                 # plt.show(block=False)
                 writer.add_scalar(f'Loss/validating', val_loss.item(), epoch * len(train_loader) + i)
                 model.zero_grad()
-          
+        scheduler.step()
         torch.save(model.state_dict(), f'./models_save/shield_free_wo_ampl/model-{epoch + 1}.pth')
          
     writer.close()
